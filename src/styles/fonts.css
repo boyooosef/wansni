@@ -1,0 +1,38 @@
+/* Add custom font imports here. */
+
+* {
+  font-family: 'Tahoma', 'Arial', sans-serif;
+  direction: rtl;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+@keyframes wheelSpin {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  to {
+    transform: rotate(360deg) scale(1.04);
+  }
+}
+
+@keyframes slide-in-from-bottom-5 {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation: slide-in-from-bottom-5 0.3s ease-out;
+}
+
+.slide-in-from-bottom-5 {
+  animation: slide-in-from-bottom-5 0.3s ease-out;
+}

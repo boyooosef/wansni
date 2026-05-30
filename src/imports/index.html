@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#facc15">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ونسني">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ونّسني</title>
+<style>
+.refresh-btn{
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    width: 45px;
+    height: 45px;
+    border: none;
+    border-radius: 50%;
+    background: #ffd500;
+    color: #000;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+}
+</style>
+</head>
+
+<body>
+
+<button class="refresh-btn" onclick="forceUpdate()">🔄</button>
+
+<script>
+function forceUpdate() {
+  const url = window.location.origin + window.location.pathname + "?update=" + Date.now();
+  window.location.href = url;
+}
+function changeWinScore(amount){
+  const input = document.getElementById("winScoreInput");
+
+  let value = parseInt(input.value) || 70;
+
+  value += amount;
+
+  if(value < 10) value = 10;
+  if(value > 500) value = 500;
+
+  input.value = value;
+}
+
+</script>
+
+<div class="container">
+
+  <div class="card" id="homeScreen">
+    <h1>🎮 ونّسني</h1>
+    <p>لعبة القعدة الكويتية 😂🇰🇼</p>
+
+    <input id="adminName" class="input" placeholder="اكتب اسم الأدمن">
+<label class="input-title">🎯 نقاط الفوز</label>
+
+<div class="score-control">
+
+<button onclick="changeWinScore(-10)" class="score-btn">➖</button>
+
+<input
+id="winScoreInput"
+class="input score-input"
+type="number"
+value="70"
+min="10"
+max="500"
+/>
+
+<button onclick="changeWinScore(10)" class="score-btn">➕</button>
+
+</div>
+    <button class="btn purple" onclick="createRoom()">👑 إنشاء قعدة كأدمن</button>
+
+    <div class="joinBox">
+      <input id="roomInput" class="input" placeholder="اكتب رقم القعدة">
+      <button class="btn blue" onclick="joinRoomByCode()">📱 دخول القعدة</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="adminScreen">
+    <h1>👑 لوحة الأدمن</h1>
+
+    <div class="box">
+      <div>رقم القعدة:</div>
+      <h2 id="roomCodeText"></h2>
+      <div id="qrcode"></div>
+      <p>خل الربع يصورون الكود بالكاميرا ويدخلون القعدة</p>
+    </div>
+
+    <div class="box">
+      <h3>📚 اختر القسم</h3>
+      <div id="categoriesBox"></div>
+    </div>
+
+    <div class="box">
+      <h3>👥 اللي بالقعدة</h3>
+      <div id="adminPlayers"></div>
+    </div>
+
+<div class="box">
+  <h3>🏆 لوحة الصدارة</h3>
+  <div id="leaderboardBox">
+    بانتظار اللاعبين...
+  </div>
+</div>
+
+<button class="btn" onclick="toggleHostMode()">📺 Host TV Mode</button>
+
+    <button class="btn blue" onclick="randomPlayerShow()">
+  🎰 اختيار اللاعب القادم
+</button>
+
+<button class="btn green" onclick="startRound()">
+  🎲 ابدأ الجولة
+</button>
+    <button class="btn red" onclick="endGame()">⛔ إنهاء اللعبة</button>
+<div class="box">
+  <h3>🎬 اللاعب القادم</h3>
+  <div id="nextPlayerBox" class="question">
+    اضغط اختيار اللاعب القادم
+  </div>
+</div>
+
+    <div class="box">
+  <h3>🔥 الجولة الحالية</h3>
+  <div id="roundBox">بانتظار بدء الجولة...</div>
+
+  <button class="btn orange" onclick="revealAnswerEarly()">
+    👁️ عرض الإجابة الآن
+  </button>
+</div>
+
+    <div class="box">
+  <h3>🗳️ التصويت</h3>
+
+  <div id="votesBox">بانتظار التصويت...</div>
+
+  <div id="adminVoteArea">
+    <button class="btn green" onclick="vote('success')">
+      ✅ نجح
+    </button>
+
+    <button class="btn red" onclick="vote('fail')">
+      ❌ فشل
+    </button>
+  </div>
+</div>
+
+<button class="btn red" onclick="finishVoting()">
+  ✅ اعتماد التصويت
+</button>
+  </div>
+
+  <div class="card hidden" id="playerScreen">
+    <h1>📱 دخول القعدة</h1>
+
+    <div id="joinForm">
+      <input id="playerName" class="input" placeholder="اكتب اسمك">
+
+<div class="box">
+  <h3>اختر الأفاتار</h3>
+  <div id="avatarBox" class="avatarBox"></div>
+</div>
+
+<button class="btn green" onclick="joinAsPlayer()">➕ انضم للقعدة</button>
+    </div>
+
+    <div id="playerGame" class="hidden">
+      <h2 id="welcomePlayer"></h2>
+
+<div class="box">
+  <h3>🎰 اختيار اللاعب</h3>
+
+  <div id="playerSpinBox" class="question">
+    بانتظار اختيار اللاعب...
+  </div>
+</div>
+
+<div class="box">
+  <h3>🏆 الترتيب المباشر</h3>
+
+  <div id="playerLeaderboard">
+    بانتظار النتائج...
+  </div>
+</div>
+      <div class="box">
+        <h3>🔥 الجولة الحالية</h3>
+        <div id="playerRoundBox">بانتظار الأدمن...</div>
+      </div>
+
+      <div id="voteArea" class="hidden">
+        <button class="btn green" onclick="vote('success')">✅ نجح</button>
+        <button class="btn red" onclick="vote('fail')">❌ فشل</button>
+      </div>
+
+      <button class="btn red" onclick="leaveGame()">🚪 خروج من اللعبة</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    © جميع الحقوق محفوظة — ونّسني<br>
+    تصميم وتطوير: BoYoOoSeF
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script type="module" src="app.js?v=10"></script>
+
+<style>
+body{
+    margin:0;
+    padding:0;
+    min-height:100vh;
+    font-family:'Tahoma',sans-serif;
+    direction:rtl;
+    background:
+    radial-gradient(circle at top, rgba(124,58,237,0.35), transparent 35%),
+    radial-gradient(circle at bottom, rgba(59,130,246,0.25), transparent 35%),
+    linear-gradient(to bottom, #081028, #050816);
+
+    color:white;
+
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+
+    overflow-x:hidden;
+}
+
+.container{
+  max-width:620px;
+  margin:auto;
+  padding:15px;
+}
+
+.card{
+    width:90%;
+    max-width:420px;
+
+    margin-top:80px;
+    padding:25px;
+
+    border-radius:28px;
+
+    background:rgba(20,25,45,0.88);
+
+    backdrop-filter: blur(12px);
+
+    box-shadow:
+    0 0 25px rgba(124,58,237,0.25),
+    0 0 60px rgba(59,130,246,0.12);
+
+    border:1px solid rgba(255,255,255,0.06);
+}
+
+h1{
+  font-size:38px;
+}
+
+.input{
+  width:100%;
+  padding:17px;
+  margin-top:15px;
+  border:none;
+  border-radius:16px;
+  font-size:18px;
+  box-sizing:border-box;
+}
+
+.btn{
+  width:100%;
+  padding:17px;
+  margin-top:15px;
+
+  border:none;
+  border-radius:18px;
+
+  font-size:19px;
+  font-weight:bold;
+
+  color:white;
+  cursor:pointer;
+
+  transition:0.25s ease;
+
+  box-shadow:
+  0 6px 18px rgba(0,0,0,0.25);
+
+  transform:scale(1);
+}
+
+.btn:hover{
+  transform:scale(1.03);
+  filter:brightness(1.08);
+}
+
+.btn:active{
+  transform:scale(0.97);
+}
+
+.green{background:#10b981;}
+.blue{background:#3b82f6;}
+.purple{background:#7c3aed;}
+.red{background:#ef4444;}
+.orange{background:#f97316;}
+
+.box{
+  background:rgba(0,0,0,0.3);
+  border-radius:18px;
+  padding:15px;
+  margin-top:15px;
+}
+
+.hidden{
+  display:none;
+}
+
+.playerItem{
+  background:rgba(255,255,255,0.1);
+  border-radius:12px;
+  padding:12px;
+  margin-top:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+}
+
+.smallBtn{
+  border:none;
+  border-radius:10px;
+  padding:8px 10px;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.categoryBtn{
+  padding:14px;
+  margin-top:10px;
+  border:none;
+  border-radius:14px;
+  color:white;
+  font-size:17px;
+  font-weight:bold;
+  width:100%;
+  cursor:pointer;
+  background:#334155;
+}
+
+.categoryBtn.active{
+  background:#7c3aed;
+  outline:3px solid white;
+}
+
+.timer{
+  font-size:44px;
+  font-weight:bold;
+  color:#facc15;
+}
+
+.question{
+  font-size:23px;
+  font-weight:bold;
+  line-height:1.7;
+}
+
+.answer{
+  color:#86efac;
+  font-weight:bold;
+  margin-top:10px;
+}
+
+#qrcode{
+  display:flex;
+  justify-content:center;
+  background:white;
+  padding:15px;
+  border-radius:15px;
+  margin-top:15px;
+}
+
+.footer{
+  text-align:center;
+  color:#888;
+  font-size:12px;
+  margin-top:25px;
+}
+
+.avatarBox{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+.avatarBtn{
+  font-size:32px;
+  padding:12px;
+  border:none;
+  border-radius:14px;
+  background:rgba(255,255,255,0.12);
+  cursor:pointer;
+}
+
+.avatarBtn.active{
+  background:#7c3aed;
+  outline:3px solid white;
+}
+@keyframes wheelSpin {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+
+  to {
+    transform: rotate(360deg) scale(1.04);
+  }
+}
+.hostMode {
+  background: radial-gradient(circle at top, #1e293b, #020617);
+}
+
+.hostMode #adminScreen {
+  max-width: 1400px;
+  margin: auto;
+}
+
+.hostMode #roomCodeText {
+  font-size: 70px;
+  color: #facc15;
+  font-weight: bold;
+  letter-spacing: 8px;
+}
+
+.hostMode #qrcode {
+  transform: scale(1.25);
+  margin: 30px auto;
+}
+
+.hostMode #roundBox {
+  font-size: 32px;
+  border: 3px solid #facc15;
+  box-shadow: 0 0 40px rgba(250, 204, 21, 0.45);
+}
+
+.hostMode #nextPlayerBox {
+  font-size: 34px;
+}
+
+.hostMode #leaderboardBox {
+  font-size: 26px;
+}
+
+.hostMode .categoryBtn,
+.hostMode input,
+.hostMode #votesBox,
+.hostMode #adminPlayers {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  body {
+    margin: 0;
+    padding: 8px;
+    overflow-x: hidden;
+  }
+
+  #playerScreen {
+    min-height: 100vh;
+  }
+
+  #playerGame {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #welcomePlayer {
+    font-size: 18px;
+    margin: 4px 0;
+  }
+
+  #playerGame .box {
+    padding: 10px;
+    margin: 4px 0;
+    border-radius: 14px;
+  }
+
+  #playerSpinBox {
+    min-height: auto;
+  }
+
+  #playerSpinBox > div {
+    transform: scale(0.75);
+    margin: -20px auto !important;
+  }
+
+  #playerLeaderboard {
+    max-height: 90px;
+    overflow-y: auto;
+    font-size: 13px;
+  }
+
+  #playerRoundBox {
+    flex: 1;
+    font-size: 16px;
+  }
+
+  #playerRoundBox h2 {
+    font-size: 20px;
+    margin: 4px 0;
+  }
+
+  #playerRoundBox p {
+    margin: 4px 0;
+  }
+
+  .timer {
+    font-size: 42px !important;
+    margin: 4px 0;
+  }
+
+  .question {
+    font-size: 24px !important;
+    line-height: 1.4;
+    margin: 8px 0;
+  }
+
+  .answer {
+    font-size: 18px;
+    padding: 8px;
+  }
+
+  #voteArea {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 4px 0;
+  }
+
+  #voteArea.hidden {
+    display: none;
+  }
+
+  #voteArea .btn {
+    flex: 1;
+    padding: 12px 8px;
+    font-size: 18px;
+    border-radius: 14px;
+  }
+
+  button.btn.red[onclick="leaveGame()"] {
+    padding: 8px;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+}
+</style>
+
+</body>
+</html>
